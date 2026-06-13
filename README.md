@@ -1,13 +1,13 @@
 # prooftrace
-Local-first proof bundle generator for agent-built changes.
+
+Local-first proof utilities for agent-built changes. The current CLI exposes
+small building blocks for classifying verification commands and hashing text
+that may later appear in proof bundles.
+
 ## Status
 
-This is a v0.1.0 local-first developer tool. Treat the CLI and output formats as early-stage, pin versions in automation, and run the verification commands below before relying on it in CI.
-## What it helps with
-
-- Work with agent, cli, local-first, proof, testing workflows from a local checkout.
-- Keep generated artifacts and reports inspectable on disk instead of sending project data to a service.
-- Add a repeatable smoke command that maintainers can run before review or release.
+Early MVP. The public surface is intentionally narrow while the proof bundle
+format is still being designed.
 
 ## Install from a checkout
 
@@ -17,25 +17,44 @@ cd prooftrace
 npm install
 npm run build
 ```
-## CLI quickstart
 
-Start with the built CLI help so the examples match the checked-out version:
+## Use
+
+Classify a verification command:
+
+```sh
+node dist/cli.js kind "npm test"
+```
+
+Hash a short evidence string:
+
+```sh
+node dist/cli.js hash "npm test passed"
+```
+
+Check CLI metadata:
 
 ```sh
 node dist/cli.js --help
+node dist/cli.js --version
 ```
-Run the maintained smoke fixture to exercise the main workflow end to end:
+
+After publishing, the global command is:
 
 ```sh
-npm run smoke
+prooftrace kind "npm run release:check"
 ```
 
-The smoke command currently expands to:
+## Package Contents
 
-```sh
-bash scripts/smoke.sh
-```
+The npm package allowlist includes compiled runtime files, docs, scripts, and
+public support documents needed for release review: `README.md`, `LICENSE`,
+`SECURITY.md`, `CHANGELOG.md`, and `CONTRIBUTING.md`. Run
+`npm run package:smoke` before publishing to confirm the tarball contents.
+
 ## Verification
+
+Run the full release gate before opening a PR or preparing a release:
 
 ```sh
 npm run check
@@ -45,35 +64,28 @@ npm run package:smoke
 npm run release:check
 ```
 
+`scripts/validate.sh` runs the same package scripts and also runs
+`agent-qc ready` when that optional tool is installed. Missing `agent-qc` is
+treated as a skip, not a failure.
+
 ## Limitations
 
-- The project is intentionally local-first; it does not manage remote credentials or upload repository contents.
-- Output schemas and CLI flags may change before a stable 1.0 release.
-- Review generated files before committing them, especially when they summarize logs, diffs, or dependency metadata.
+- The CLI does not yet generate complete proof bundles.
+- Command classification is heuristic and should be treated as metadata, not a
+  security decision.
+- Hashes prove byte identity only for the exact input string or file content.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes small, include a fixture or smoke case when behavior changes, and paste verification output into the pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes small and include the exact
+verification command in every pull request.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting. Do not paste secrets, private tokens, or proprietary logs into issues or examples.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance. Do not
+include secrets, private logs, proprietary source, or customer data in public
+proof examples.
 
 ## License
 
 MIT
-
-## Release Readiness
-
-Use the checked-in scripts before opening or publishing a release:
-
-```sh
-npm run check
-npm test
-npm run build
-npm run smoke
-npm run package:smoke
-npm run release:check
-```
-
-The package smoke uses `npm pack --dry-run` so the published file list can be reviewed without publishing.

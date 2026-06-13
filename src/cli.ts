@@ -13,14 +13,14 @@ type ParsedArgs = {
 async function main(argv: string[]): Promise<number> {
   const args = parseArgs(argv);
 
-  if (args.help || !args.command) {
-    process.stdout.write(helpText());
-    return args.help ? 0 : 1;
-  }
-
   if (args.version) {
     process.stdout.write("prooftrace 0.1.0\n");
     return 0;
+  }
+
+  if (args.help || !args.command) {
+    process.stdout.write(helpText());
+    return args.help ? 0 : 1;
   }
 
   if (args.command === "kind") {

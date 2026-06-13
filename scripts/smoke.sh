@@ -8,6 +8,7 @@ npm run build >/dev/null
 
 node dist/cli.js --help >/tmp/prooftrace-help.txt
 grep -q "prooftrace" /tmp/prooftrace-help.txt
+node dist/cli.js --version | grep -q "prooftrace 0.1.0"
 
 kind="$(node dist/cli.js kind "npm test")"
 test "$kind" = "test"
