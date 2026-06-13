@@ -10,6 +10,11 @@ format and uses semantic versioning when versioned releases are published.
 ### Added
 
 - Initial project setup.
+- Release-candidate README and full release verification path.
+
+### Fixed
+
+- `prooftrace --version` now prints the CLI version instead of help text.
 
 ## Release Links
 
