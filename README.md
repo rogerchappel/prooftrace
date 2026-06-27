@@ -32,6 +32,12 @@ Hash a short evidence string:
 node dist/cli.js hash "npm test passed"
 ```
 
+Hash the included sample evidence fixture:
+
+```sh
+node dist/cli.js hash "$(cat fixtures/evidence.txt)"
+```
+
 Check CLI metadata:
 
 ```sh

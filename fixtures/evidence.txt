@@ -1,0 +1,3 @@
+Command: npm run release:check
+Result: pass
+Notes: Local release gate completed before opening the pull request.

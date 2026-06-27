@@ -15,3 +15,6 @@ test "$kind" = "test"
 
 hash="$(node dist/cli.js hash "prooftrace")"
 test "${#hash}" -eq 64
+
+fixture_hash="$(node dist/cli.js hash "$(cat fixtures/evidence.txt)")"
+test "${#fixture_hash}" -eq 64
