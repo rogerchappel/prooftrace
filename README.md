@@ -18,7 +18,7 @@ npm install
 npm run build
 ```
 
-## Use
+## Quickstart
 
 Classify a verification command:
 
