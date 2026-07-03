@@ -38,6 +38,16 @@ Hash the included sample evidence fixture:
 node dist/cli.js hash "$(cat fixtures/evidence.txt)"
 ```
 
+Run the checked-in demo:
+
+```sh
+bash demo/run-proof-utility-demo.sh
+```
+
+The walkthrough in [docs/tutorials/classify-and-hash-evidence.md](docs/tutorials/classify-and-hash-evidence.md)
+covers the same command classification and hashing flow. Promotion notes are in
+[docs/promo/social-hooks.md](docs/promo/social-hooks.md).
+
 Check CLI metadata:
 
 ```sh
