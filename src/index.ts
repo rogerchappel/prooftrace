@@ -1,5 +1,6 @@
 export { classifyCommand } from "./command-kind.js";
 export { sha256File, sha256Text } from "./hash.js";
+export { parseCommandLog } from "./log-parse.js";
 export { isInside, normalizePath, resolveInside, resolveRepo } from "./paths.js";
 export { excerpt, stripAnsi, truncateMiddle } from "./text.js";
 export type {
