@@ -2,6 +2,7 @@
 import process from "node:process";
 import { classifyCommand } from "./command-kind.js";
 import { sha256Text } from "./hash.js";
+import { parseCommandLog } from "./log-parse.js";
 
 type ParsedArgs = {
   command?: string;
@@ -39,6 +40,16 @@ async function main(argv: string[]): Promise<number> {
     return 0;
   }
 
+  if (args.command === "from-log") {
+    const text = args.values.join(" ");
+    if (!text) {
+      process.stderr.write("prooftrace from-log requires copied log text.\n");
+      return 2;
+    }
+    process.stdout.write(`${JSON.stringify(parseCommandLog(text), null, 2)}\n`);
+    return 0;
+  }
+
   process.stderr.write(`Unknown command: ${args.command}\n\n${helpText()}`);
   return 1;
 }
@@ -73,11 +84,14 @@ Local-first proof bundle utilities for agent-built changes.
 Usage:
   prooftrace kind "npm test"
   prooftrace hash "text to hash"
+  prooftrace from-log "$ npm test
+  exit 0"
   prooftrace --help
 
 Commands:
-  kind   Classify a verification command as test, build, smoke, lint, package, or generic.
-  hash   Print a SHA-256 hash for the provided text.
+  kind      Classify a verification command as test, build, smoke, lint, package, or generic.
+  hash      Print a SHA-256 hash for the provided text.
+  from-log  Parse copied "$ command" log text into command evidence stubs.
 `;
 }
 
