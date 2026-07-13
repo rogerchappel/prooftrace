@@ -44,6 +44,13 @@ Run the checked-in demo:
 bash demo/run-proof-utility-demo.sh
 ```
 
+Parse copied shell-log evidence into command stubs:
+
+```sh
+node dist/cli.js from-log "$ npm test
+exit 0"
+```
+
 The walkthrough in [docs/tutorials/classify-and-hash-evidence.md](docs/tutorials/classify-and-hash-evidence.md)
 covers the same command classification and hashing flow. Promotion notes are in
 [docs/promo/social-hooks.md](docs/promo/social-hooks.md).
@@ -87,6 +94,7 @@ treated as a skip, not a failure.
 ## Limitations
 
 - The CLI does not yet generate complete proof bundles.
+- `from-log` parses copied logs only; it does not execute commands.
 - Command classification is heuristic and should be treated as metadata, not a
   security decision.
 - Hashes prove byte identity only for the exact input string or file content.
