@@ -42,7 +42,7 @@ function pushCurrent(commands: ParsedCommand[], current: { command: string; outp
   commands.push({
     command: current.command,
     kind: classifyCommand(current.command),
-    passed: current.exitCode === null ? true : current.exitCode === 0,
+    passed: current.exitCode === 0,
     exitCode: current.exitCode,
     excerpt: excerpt(current.output.join("\n"), 240)
   });
