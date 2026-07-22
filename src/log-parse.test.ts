@@ -2,7 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { parseCommandLog } from "./log-parse.js";
 
-test("parseCommandLog extracts command stubs from copied shell logs", () => {
+test("parseCommandLog does not pass commands without an explicit exit status", () => {
+  const [command] = parseCommandLog(`$ npm test
+tests passed but no exit status was captured`);
+
+  assert.equal(command!.passed, false);
+  assert.equal(command!.exitCode, null);
+});
+
+test("parseCommandLog uses explicit exit statuses for copied shell logs", () => {
   const parsed = parseCommandLog(`$ npm test
 tests passed
 exit 0
@@ -16,6 +24,7 @@ exit 2`);
   assert.equal(first.command, "npm test");
   assert.equal(first.kind, "test");
   assert.equal(first.passed, true);
+  assert.equal(first.exitCode, 0);
   assert.equal(second.kind, "build");
   assert.equal(second.passed, false);
   assert.equal(second.exitCode, 2);
