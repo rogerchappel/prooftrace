@@ -91,6 +91,9 @@ npm run release:check
 `agent-qc ready` when that optional tool is installed. Missing `agent-qc` is
 treated as a skip, not a failure.
 
+Maintainers preparing a tagged npm release should follow
+[the release prerequisites and recovery guide](docs/releasing.md).
+
 ## Limitations
 
 - The CLI does not yet generate complete proof bundles.
