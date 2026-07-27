@@ -26,12 +26,18 @@
     "CHANGELOG.md",
     "CONTRIBUTING.md"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/**/*.test.js",
     "smoke": "bash scripts/smoke.sh",
     "package:smoke": "npm run build && test -f ./dist/cli.js && test -f ./dist/index.js && npm pack --dry-run",
+    "release:config": "node scripts/validate-release.mjs",
+    "release:dry-run": "npm run release:config && npm pack --dry-run",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke",
     "prepack": "npm run build"
   },
