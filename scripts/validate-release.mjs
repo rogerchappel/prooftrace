@@ -39,6 +39,23 @@ if (publishIndex >= releaseIndex) {
   errors.push("npm publish must run before the GitHub release is created");
 }
 
+const requiredRecoveryFragments = [
+  "workflow_dispatch:",
+  "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+  'test "$RELEASE_TAG" = "v$package_version"',
+  'test "$head_commit" = "$tag_commit"',
+  "npm run release:check",
+  "npm run release:dry-run",
+  "npm publish --provenance --access public",
+  'gh release create "$RELEASE_TAG" --verify-tag',
+];
+
+for (const fragment of requiredRecoveryFragments) {
+  if (!workflow.includes(fragment)) {
+    errors.push(`recovery workflow is missing: ${fragment}`);
+  }
+}
+
 if (errors.length > 0) {
   for (const error of errors) {
     console.error(`release validation failed: ${error}`);
