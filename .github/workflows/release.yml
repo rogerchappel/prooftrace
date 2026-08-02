@@ -1,6 +1,12 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing immutable release tag (strictly vX.Y.Z)
+        required: true
+        type: string
   push:
     tags:
       - 'v*.*.*'
@@ -15,6 +21,7 @@ env:
 
 jobs:
   release:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -51,3 +58,91 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "${GITHUB_REF_NAME}" --notes-file RELEASE_NOTES.md ./*.tgz
+
+  recover:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out recovery automation
+        uses: actions/checkout@v5
+        with:
+          path: recovery-automation
+      - name: Validate existing tag input
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "tag must match vX.Y.Z exactly" >&2; exit 1; }
+          git -C recovery-automation fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+          git -C recovery-automation rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}" >/dev/null
+      - name: Check out immutable tagged revision
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+          path: package
+      - name: Verify tag, version, and ref
+        working-directory: package
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          package_version="$(node -p "require('./package.json').version")"
+          test "$RELEASE_TAG" = "v$package_version" || { echo "tag/version mismatch" >&2; exit 1; }
+          tag_commit="$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          head_commit="$(git rev-parse HEAD)"
+          test "$head_commit" = "$tag_commit" || { echo "HEAD/tag mismatch" >&2; exit 1; }
+          node scripts/validate-release.mjs "$RELEASE_TAG"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package/package-lock.json
+          registry-url: https://registry.npmjs.org
+      - name: Run tagged revision release checks
+        working-directory: package
+        run: npm ci && npm run release:check && npm run release:dry-run
+      - name: Query destination state
+        id: state
+        working-directory: package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          name="$(node -p "require('./package.json').name")"; version="$(node -p "require('./package.json').version")"
+          npm_published=false
+          if npm view "$name@$version" version --json >/tmp/npm.json 2>/tmp/npm.err; then
+            test "$(node -p "JSON.parse(require('fs').readFileSync('/tmp/npm.json','utf8'))")" = "$version"; npm_published=true
+          elif ! grep -qE 'E404|404 Not Found' /tmp/npm.err; then cat /tmp/npm.err >&2; exit 1; fi
+          github_release=false
+          if gh release view "$RELEASE_TAG" --json tagName >/tmp/gh.json 2>/tmp/gh.err; then
+            test "$(node -p "JSON.parse(require('fs').readFileSync('/tmp/gh.json','utf8')).tagName")" = "$RELEASE_TAG"; github_release=true
+          elif ! grep -qi 'release not found' /tmp/gh.err; then cat /tmp/gh.err >&2; exit 1; fi
+          plan="$(node ../recovery-automation/scripts/release-recovery-plan.mjs "$npm_published" "$github_release")"
+          echo "publish_npm=$(node -p "JSON.parse(process.argv[1]).publishNpm" "$plan")" >> "$GITHUB_OUTPUT"
+          echo "create_release=$(node -p "JSON.parse(process.argv[1]).createGithubRelease" "$plan")" >> "$GITHUB_OUTPUT"
+          echo "outcome=$(node -p "JSON.parse(process.argv[1]).outcome" "$plan")" >> "$GITHUB_OUTPUT"
+      - name: Publish missing npm package with provenance
+        if: steps.state.outputs.publish_npm == 'true'
+        working-directory: package
+        run: npm publish --provenance --access public
+      - name: Install ReleaseBox
+        if: steps.state.outputs.create_release == 'true'
+        run: |
+          git clone --depth 1 --branch "$RELEASEBOX_REF" https://github.com/rogerchappel/releasebox.git /tmp/releasebox
+          npm --prefix /tmp/releasebox ci && npm --prefix /tmp/releasebox run build
+      - name: Create missing GitHub release from registry artifact
+        if: steps.state.outputs.create_release == 'true'
+        working-directory: package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          name="$(node -p "require('./package.json').name")"; version="$(node -p "require('./package.json').version")"
+          node /tmp/releasebox/bin/releasebox.js notes . > RELEASE_NOTES.md
+          npm pack "$name@$version"
+          gh release create "$RELEASE_TAG" --verify-tag --notes-file RELEASE_NOTES.md ./*.tgz
+      - name: Record recovery result
+        run: echo "Recovery result for ${{ inputs.tag }} — ${{ steps.state.outputs.outcome }}" >> "$GITHUB_STEP_SUMMARY"

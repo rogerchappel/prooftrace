@@ -29,16 +29,31 @@ mismatch or missing publication wiring.
 
 Do not move or reuse a published version tag.
 
+For an existing tag whose npm package or GitHub release is missing, open
+**Actions → Recover existing tagged release → Run workflow**, enter the exact
+tag (for example `v0.1.0`), and run it from the default branch. The workflow:
+
+1. requires a strict `vX.Y.Z` tag that already exists;
+2. checks out that tag and verifies its commit is `HEAD` and its version matches
+   `package.json`;
+3. runs the tagged revision's full release checks and package dry run;
+4. queries npm and GitHub, then creates only the missing destination.
+
+It is safe to dispatch again after interruption: an existing npm version is
+never republished and an existing GitHub release is never recreated. When the
+GitHub release is missing, its tarball is downloaded from npm after publication
+so the attached artifact is the registry's immutable package.
+
 - If validation or tests fail, fix the default branch and create a new version
   and tag.
-- If npm publication fails, inspect the workflow's publish step. Correct the
-  trusted-publisher configuration or repository change before retrying the
-  same unpublished tag.
-- If npm publication succeeds but GitHub release creation fails, do not rerun
-  the npm publish step. Confirm the published version with
-  `npm view prooftrace@<version> version`, download its tarball with
-  `npm pack prooftrace@<version>`, and create the matching GitHub release from
-  that immutable package artifact.
+- If npm publication fails, correct the trusted-publisher configuration before
+  dispatching recovery again for the same still-unpublished tag.
+- If npm succeeds but GitHub release creation fails, dispatch recovery again;
+  it skips npm and creates the release from `npm pack prooftrace@<version>`.
+- If the GitHub release exists but npm is missing, recovery publishes npm and
+  leaves the existing GitHub release untouched.
+- If both destinations already exist, recovery runs validation and checks, then
+  records a completed no-op.
 
 Publishing and creating releases are maintainer actions. The dry-run commands
 above never publish.
