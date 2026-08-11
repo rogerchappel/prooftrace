@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import process from "node:process";
+import { readFile } from "node:fs/promises";
 import { classifyCommand } from "./command-kind.js";
 import { sha256Text } from "./hash.js";
 import { parseCommandLog } from "./log-parse.js";
@@ -15,7 +16,7 @@ async function main(argv: string[]): Promise<number> {
   const args = parseArgs(argv);
 
   if (args.version) {
-    process.stdout.write("prooftrace 0.1.0\n");
+    process.stdout.write(`prooftrace ${await packageVersion()}\n`);
     return 0;
   }
 
@@ -52,6 +53,17 @@ async function main(argv: string[]): Promise<number> {
 
   process.stderr.write(`Unknown command: ${args.command}\n\n${helpText()}`);
   return 1;
+}
+
+async function packageVersion(): Promise<string> {
+  const packageJsonUrl = new URL("../package.json", import.meta.url);
+  const packageJson = JSON.parse(await readFile(packageJsonUrl, "utf8")) as { version?: unknown };
+
+  if (typeof packageJson.version !== "string" || packageJson.version.length === 0) {
+    throw new Error("package.json does not contain a valid version");
+  }
+
+  return packageJson.version;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
