@@ -9,9 +9,10 @@ then create a GitHub release containing the package tarball.
   `.github/workflows/release.yml` workflow as an npm trusted publisher.
 - The release commit must pass `npm run release:check` and
   `npm run release:dry-run`.
-- `package.json` must contain the intended version. The tag must be exactly
-  `v<package version>` (for example, package version `0.1.0` uses tag
-  `v0.1.0`).
+- `package.json` is the single source for the package and CLI version; do not
+  edit a version literal elsewhere. It must contain the intended version. The
+  tag must be exactly `v<package version>` (for example, package version
+  `0.1.0` uses tag `v0.1.0`).
 
 Run the local, non-publishing checks before creating a tag:
 
