@@ -37,6 +37,10 @@ async function main(argv: string[]): Promise<number> {
 
   if (args.command === "hash") {
     const text = args.values.join(" ");
+    if (!text) {
+      process.stderr.write("prooftrace hash requires evidence text.\n");
+      return 2;
+    }
     process.stdout.write(`${sha256Text(text)}\n`);
     return 0;
   }
@@ -73,16 +77,15 @@ function parseArgs(argv: string[]): ParsedArgs {
     version: false
   };
 
-  for (const arg of argv) {
-    if (arg === "--help" || arg === "-h") {
-      parsed.help = true;
-    } else if (arg === "--version" || arg === "-v") {
-      parsed.version = true;
-    } else if (!parsed.command) {
-      parsed.command = arg;
-    } else {
-      parsed.values.push(arg);
-    }
+  const [first, ...values] = argv;
+
+  if (first === "--help" || first === "-h") {
+    parsed.help = true;
+  } else if (first === "--version" || first === "-v") {
+    parsed.version = true;
+  } else if (first) {
+    parsed.command = first;
+    parsed.values = values;
   }
 
   return parsed;
@@ -99,6 +102,10 @@ Usage:
   prooftrace from-log "$ npm test
   exit 0"
   prooftrace --help
+
+Options:
+  -h, --help     Show this help when used before a command.
+  -v, --version  Show the version when used before a command.
 
 Commands:
   kind      Classify a verification command as test, build, smoke, lint, package, or generic.
