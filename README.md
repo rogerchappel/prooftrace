@@ -62,6 +62,11 @@ node dist/cli.js --help
 node dist/cli.js --version
 ```
 
+Help and version flags are top-level options and must appear before a command.
+After `kind`, `hash`, or `from-log`, every argument is treated as that command's
+payload, including text such as `--help` and `--version`. Each command requires
+a non-empty payload.
+
 After publishing, the global command is:
 
 ```sh
