@@ -7,6 +7,7 @@ test("classifyCommand recognizes common verification commands", () => {
   assert.equal(classifyCommand("node --test dist/**/*.test.js"), "test");
   assert.equal(classifyCommand("npm run build"), "build");
   assert.equal(classifyCommand("npm run smoke"), "smoke");
+  assert.equal(classifyCommand("npm run package:smoke"), "package");
   assert.equal(classifyCommand("npm pack --dry-run"), "package");
 });
 

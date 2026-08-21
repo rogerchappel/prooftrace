@@ -11,16 +11,16 @@ export function classifyCommand(command: string): CommandKind {
     return "build";
   }
 
+  if (/\b(npm pack|pnpm pack|yarn pack|package:smoke)\b/.test(value)) {
+    return "package";
+  }
+
   if (/\b(smoke|validate|e2e)\b/.test(value)) {
     return "smoke";
   }
 
   if (/\b(lint|eslint|ruff|clippy)\b/.test(value)) {
     return "lint";
-  }
-
-  if (/\b(npm pack|pnpm pack|yarn pack|package:smoke)\b/.test(value)) {
-    return "package";
   }
 
   return "generic";
