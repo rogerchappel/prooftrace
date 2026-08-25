@@ -10,7 +10,7 @@ Ground these posts in `demo/run-proof-utility-demo.sh`.
 
 2. A proof trail should say what kind of verification ran. `prooftrace kind
    "npm test"` returns `test`; `prooftrace kind "npm run package:smoke"`
-   returns `smoke`.
+   returns `package`.
 
 3. The MVP is deliberately narrow: command metadata and hashes today, complete
    proof bundles later. That keeps the demo honest and easy to verify.

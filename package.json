@@ -35,10 +35,11 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/**/*.test.js",
     "smoke": "bash scripts/smoke.sh",
+    "demo:check": "bash demo/run-proof-utility-demo.sh",
     "package:smoke": "npm run build && test -f ./dist/cli.js && test -f ./dist/index.js && npm pack --dry-run",
     "release:config": "node scripts/validate-release.mjs",
     "release:dry-run": "npm run release:config && npm pack --dry-run",
-    "release:check": "npm run check && npm test && node --test scripts/*.test.mjs && npm run smoke && npm run package:smoke",
+    "release:check": "npm run check && npm test && node --test scripts/*.test.mjs && npm run smoke && npm run package:smoke && npm run demo:check",
     "prepack": "npm run build"
   },
   "keywords": [
