@@ -15,6 +15,9 @@ format and uses semantic versioning when versioned releases are published.
 ### Fixed
 
 - `prooftrace --version` now prints the CLI version instead of help text.
+- The npm publish tarball no longer ships compiled test artifacts
+  (`dist/*.test.js`, `*.test.d.ts`, `*.test.js.map`) or `scripts/*.test.mjs`
+  suites; `npm run package:smoke` now fails when they reappear.
 
 ## Release Links
 
