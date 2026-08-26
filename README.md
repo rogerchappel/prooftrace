@@ -77,8 +77,11 @@ prooftrace kind "npm run release:check"
 
 The npm package allowlist includes compiled runtime files, docs, scripts, and
 public support documents needed for release review: `README.md`, `LICENSE`,
-`SECURITY.md`, `CHANGELOG.md`, and `CONTRIBUTING.md`. Run
-`npm run package:smoke` before publishing to confirm the tarball contents.
+`SECURITY.md`, `CHANGELOG.md`, and `CONTRIBUTING.md`. Compiled test artifacts
+(`dist/*.test.js`, `*.test.d.ts`, `*.test.js.map`) and `scripts/*.test.mjs`
+suites are excluded from the tarball. Run `npm run package:smoke` before
+publishing: it lists the tarball contents and fails if any test artifact
+reappears.
 
 ## Verification
 
