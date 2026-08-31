@@ -30,3 +30,17 @@ exit 2`);
   assert.equal(second.exitCode, 2);
   assert.match(second.excerpt, /type error/);
 });
+
+test("parseCommandLog strips ANSI color from copied prompts, statuses, and output", () => {
+  const [command] = parseCommandLog(
+    "\u001b[32m$ npm test\u001b[0m\n\u001b[36mtests passed\u001b[0m\n\u001b[32mexit 0\u001b[0m"
+  );
+
+  assert.deepEqual(command, {
+    command: "npm test",
+    kind: "test",
+    passed: true,
+    exitCode: 0,
+    excerpt: "tests passed"
+  });
+});
