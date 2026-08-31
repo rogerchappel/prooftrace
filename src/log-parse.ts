@@ -1,5 +1,5 @@
 import { classifyCommand } from "./command-kind.js";
-import { excerpt } from "./text.js";
+import { excerpt, stripAnsi } from "./text.js";
 import type { ParsedCommand } from "./types.js";
 
 const PROMPT_RE = /^\$\s+(.+)$/;
@@ -9,7 +9,8 @@ export function parseCommandLog(text: string): ParsedCommand[] {
   const commands: ParsedCommand[] = [];
   let current: { command: string; output: string[]; exitCode: number | null } | undefined;
 
-  for (const line of text.split(/\r?\n/)) {
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = stripAnsi(rawLine);
     const promptMatch = line.match(PROMPT_RE);
     if (promptMatch) {
       pushCurrent(commands, current);
