@@ -34,9 +34,9 @@ test("metadata-looking tokens after commands remain command payload", () => {
     stderr: ""
   });
   assert.deepEqual(run("from-log", "--version"), {
-    status: 0,
-    stdout: "[]\n",
-    stderr: ""
+    status: 2,
+    stdout: "",
+    stderr: "prooftrace from-log found no copied commands.\n"
   });
 });
 
@@ -61,6 +61,22 @@ test("kind, hash, and from-log accept valid payloads", () => {
       passed: true,
       exitCode: 0,
       excerpt: ""
+    }
+  ]);
+
+  const colored = run(
+    "from-log",
+    "\u001b[32m$ npm test\u001b[0m\n\u001b[36mok\u001b[0m\n\u001b[32mexit 0\u001b[0m"
+  );
+  assert.equal(colored.status, 0);
+  assert.equal(colored.stderr, "");
+  assert.deepEqual(JSON.parse(colored.stdout), [
+    {
+      command: "npm test",
+      kind: "test",
+      passed: true,
+      exitCode: 0,
+      excerpt: "ok"
     }
   ]);
 });
