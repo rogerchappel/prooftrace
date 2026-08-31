@@ -51,7 +51,12 @@ async function main(argv: string[]): Promise<number> {
       process.stderr.write("prooftrace from-log requires copied log text.\n");
       return 2;
     }
-    process.stdout.write(`${JSON.stringify(parseCommandLog(text), null, 2)}\n`);
+    const commands = parseCommandLog(text);
+    if (commands.length === 0) {
+      process.stderr.write("prooftrace from-log found no copied commands.\n");
+      return 2;
+    }
+    process.stdout.write(`${JSON.stringify(commands, null, 2)}\n`);
     return 0;
   }
 
