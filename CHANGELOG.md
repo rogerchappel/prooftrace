@@ -14,6 +14,8 @@ format and uses semantic versioning when versioned releases are published.
 
 ### Fixed
 
+- `from-log` now parses ANSI-colored copied terminal logs and rejects non-empty
+  input that contains no recognizable command prompt.
 - `prooftrace --version` now prints the CLI version instead of help text.
 - The npm publish tarball no longer ships compiled test artifacts
   (`dist/*.test.js`, `*.test.d.ts`, `*.test.js.map`) or `scripts/*.test.mjs`

@@ -51,6 +51,11 @@ node dist/cli.js from-log "$ npm test
 exit 0"
 ```
 
+`from-log` accepts ANSI-colored copied terminal lines and removes color codes
+from commands, statuses, and excerpts. Non-empty input that contains no
+recognizable `$ command` prompt fails with a usage error instead of returning
+an empty evidence array.
+
 The walkthrough in [docs/tutorials/classify-and-hash-evidence.md](docs/tutorials/classify-and-hash-evidence.md)
 covers the same command classification and hashing flow. Promotion notes are in
 [docs/promo/social-hooks.md](docs/promo/social-hooks.md).
@@ -105,7 +110,7 @@ Maintainers preparing a tagged npm release should follow
 ## Limitations
 
 - The CLI does not yet generate complete proof bundles.
-- `from-log` parses copied logs only; it does not execute commands.
+- `from-log` parses copied `$ command` logs only; it does not execute commands.
 - Command classification is heuristic and should be treated as metadata, not a
   security decision.
 - Hashes prove byte identity only for the exact input string or file content.
