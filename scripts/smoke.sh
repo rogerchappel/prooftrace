@@ -4,6 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
+if [ -f package-lock.json ]; then npm ci; else npm install; fi
 npm run build >/dev/null
 
 node dist/cli.js --help >/tmp/prooftrace-help.txt
