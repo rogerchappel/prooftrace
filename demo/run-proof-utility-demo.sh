@@ -6,6 +6,7 @@ tmp_dir="$(mktemp -d "/tmp/prooftrace-demo.XXXXXX")"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
+if [ -f package-lock.json ]; then npm ci; else npm install; fi
 npm run build >/dev/null
 
 node dist/cli.js kind "npm test" >"$tmp_dir/kind-test.txt"
